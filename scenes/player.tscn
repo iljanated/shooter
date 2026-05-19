@@ -1,0 +1,22 @@
+[gd_scene format=3 uid="uid://cveo8kcpwth1d"]
+
+[ext_resource type="Script" uid="uid://u8ggpbrt6qag" path="res://scripts/player.gd" id="1_g2els"]
+[ext_resource type="SpriteFrames" uid="uid://cejf66jwelq8c" path="res://assets/characters/wizard/wizard_sprite_frames.tres" id="2_g2els"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_g2els"]
+
+[node name="Player" type="CharacterBody2D" unique_id=625724922]
+z_index = 1
+y_sort_enabled = true
+collision_layer = 2
+script = ExtResource("1_g2els")
+
+[node name="MoveCollisionShape2D" type="CollisionShape2D" parent="." unique_id=174395008]
+shape = SubResource("CircleShape2D_g2els")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1924022031]
+y_sort_enabled = true
+sprite_frames = ExtResource("2_g2els")
+animation = &"walk"
+frame_progress = 0.6125411
+offset = Vector2(0, -7)
