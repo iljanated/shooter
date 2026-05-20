@@ -1,9 +1,9 @@
 [gd_scene format=3 uid="uid://c16n6ltdq3noc"]
 
-[ext_resource type="Script" uid="uid://bjpbuvwxvpjh6" path="res://scripts/enemy.gd" id="1_5uy6h"]
+[ext_resource type="Script" uid="uid://bjpbuvwxvpjh6" path="res://scripts/characters/enemy/enemy.gd" id="1_5uy6h"]
 [ext_resource type="SpriteFrames" uid="uid://ctp35ofa4tle7" path="res://assets/characters/armored_orc/armored_orc_sprite_frames.tres" id="1_7p1mj"]
-[ext_resource type="Script" uid="uid://qotc8qnrnmtj" path="res://scripts/state_machine.gd" id="2_md0e3"]
-[ext_resource type="Script" uid="uid://m53jbagvaqs" path="res://scripts/enemy_idle_state.gd" id="3_4ra3w"]
+[ext_resource type="Script" uid="uid://qotc8qnrnmtj" path="res://scripts/state_machine/state_machine.gd" id="2_md0e3"]
+[ext_resource type="Script" uid="uid://m53jbagvaqs" path="res://scripts/characters/enemy/states/enemy_idle_state.gd" id="3_4ra3w"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_7p1mj"]
 radius = 17.029387

@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://cveo8kcpwth1d"]
 
-[ext_resource type="Script" uid="uid://u8ggpbrt6qag" path="res://scripts/player.gd" id="1_g2els"]
+[ext_resource type="Script" uid="uid://u8ggpbrt6qag" path="res://scripts/characters/player/player.gd" id="1_g2els"]
 [ext_resource type="SpriteFrames" uid="uid://cejf66jwelq8c" path="res://assets/characters/wizard/wizard_sprite_frames.tres" id="2_g2els"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_g2els"]

@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://cs3bua16r3q8u"]
+
+[ext_resource type="Script" uid="uid://bub16lm2inbx0" path="res://scripts/map_objects/map_exit.gd" id="1_5bqki"]
+
+[node name="MapExit" type="Node2D" unique_id=1554953664]
+script = ExtResource("1_5bqki")
+metadata/_custom_type_script = "uid://bub16lm2inbx0"
