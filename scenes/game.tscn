@@ -25,6 +25,10 @@ tile_set = ExtResource("1_yqjtg")
 [node name="StaticObjects" type="Node" parent="." unique_id=1171088548]
 
 [node name="MapExit" parent="StaticObjects" unique_id=1554953664 instance=ExtResource("2_p57ef")]
+position = Vector2(10, -36)
+
+[node name="MapExit2" parent="StaticObjects" unique_id=1346189774 instance=ExtResource("2_p57ef")]
+position = Vector2(866, -643)
 
 [node name="Player" parent="." unique_id=625724922 instance=ExtResource("1_uwrxv")]
 position = Vector2(14, -103)
@@ -34,7 +38,7 @@ zoom = Vector2(3, 3)
 script = ExtResource("3_lnu2h")
 
 [node name="Enemy" parent="." unique_id=1222688683 instance=ExtResource("4_lbhrr")]
-position = Vector2(-283, -238)
+position = Vector2(-875, -925)
 
 [node name="DataGrid2D" type="Node2D" parent="." unique_id=797833128]
 z_index = 10

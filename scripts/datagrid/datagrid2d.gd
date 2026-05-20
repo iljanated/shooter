@@ -33,7 +33,8 @@ func _ready():
 	
 	var grid_width = grid_rect.size.x
 	var grid_height = grid_rect.size.y
-	grid.resize(grid_width * grid_height)
+	var grid_size = grid_width * grid_height
+	grid.resize(grid_size)
 
 	for y in range(grid_height):
 		for x in range(grid_width):
@@ -53,14 +54,21 @@ func _ready():
 				"wall":
 					grid[cell_index].walkable = false
 
-	initialize_flow_fields()
+	exit_distance_field.resize(grid_size)
+	player_distance_field.resize(grid_size)
+	flow_field_buffer.resize(grid_size)
+	
 	rebuild_exit_distance_field()
-	rebuild_player_distance_field([])
+	rebuild_player_distance_field()
+	
 	queue_redraw()
 			
 func _draw():
 	var grid_width = grid_rect.size.x
 	var grid_height = grid_rect.size.y
+
+	var font : Font = ThemeDB.fallback_font
+	var font_size = 10
 
 	for y in range(grid_height):
 		for x in range(grid_width):
@@ -68,6 +76,7 @@ func _draw():
 			var cell = grid[cell_index]
 			var color =  Color(0, 1, 0, 0.2) if cell.walkable else Color(1, 0, 0, 0.2)
 			draw_rect(Rect2(top_left + Vector2(x, y) * cell_size, Vector2(cell_size, cell_size)), color)
+			draw_string(font, top_left + Vector2(x, y) * cell_size + Vector2(0, (cell_size + font_size) * 0.5), str(exit_distance_field[cell_index]).pad_decimals(1),HORIZONTAL_ALIGNMENT_CENTER, cell_size, font_size)
 
 
 func initialize_tilemap_layers_from_static_layers() -> void:
@@ -95,38 +104,85 @@ func initialize_map_exits_from_static_objects() -> void:
 		if child_node is MapExit:
 			map_exits.append(child_node)
 
-
-func initialize_flow_fields() -> void:
-	var cell_count = grid.size()
-	exit_distance_field = FlowField.create_default_field(cell_count)
-	player_distance_field = FlowField.create_default_field(cell_count)
-	flow_field_buffer = FlowField.create_default_field(cell_count)
-
-
 func rebuild_exit_distance_field() -> void:
+	
 	var exit_source_indices: Array[int] = []
 	for map_exit in map_exits:
-		exit_source_indices.append(get_cell_index_from_world_position(map_exit.global_position))
+		var index = world_position_to_index(map_exit.global_position)
+		if index != -1:
+			exit_source_indices.append(index)
 
-	flow_field_buffer = FlowField.calculate_field_on_buffer(flow_field_buffer, grid, exit_source_indices)
+	FlowField.calculate_field(flow_field_buffer, grid_rect.size, grid, exit_source_indices)
+
 	var previous_field = exit_distance_field
 	exit_distance_field = flow_field_buffer
 	flow_field_buffer = previous_field
 
 
-func rebuild_player_distance_field(player_positions: Array[Vector2]) -> void:
-	var player_source_indices: Array[int] = []
-	for player_position in player_positions:
-		player_source_indices.append(get_cell_index_from_world_position(player_position))
+func rebuild_player_distance_field() -> void:
+	pass
 
-	flow_field_buffer = FlowField.calculate_field_on_buffer(flow_field_buffer, grid, player_source_indices)
-	var previous_field = player_distance_field
-	player_distance_field = flow_field_buffer
-	flow_field_buffer = previous_field
+func get_index_distance(flow_field: String, index: int) -> float:
+	var selected_field: PackedFloat32Array
+	match flow_field:
+		"exits":
+			selected_field = exit_distance_field
+		"players":
+			selected_field = player_distance_field
+		_:
+			push_error("DataGrid2D: Unknown flow field name ", flow_field)
+			return INF
 
+	if index < 0 or index >= selected_field.size():
+		return INF
 
-func get_cell_index_from_world_position(world_position: Vector2) -> int:
+	return selected_field[index]
+
+func get_distance(flow_field: String, world_position: Vector2) -> float:
+	var index = world_position_to_index(Vector2(world_position.x, world_position.y))
+	return get_index_distance(flow_field, index)
+
+func get_gradient(flow_field: String, world_position: Vector2) -> Vector2:
+	var center_index = world_position_to_index(Vector2(world_position.x, world_position.y))
+	var center_value = get_index_distance(flow_field, center_index)
+	if center_value == INF:
+		return Vector2.ZERO
+
+	var grid_width = grid_rect.size.x
+	var grid_height = grid_rect.size.y
+	var cell_x = center_index % grid_width
+	var cell_y = int(center_index / grid_width)
+
+	var right_index = center_index + 1 if cell_x < grid_width - 1 else -1
+	var left_index = center_index - 1 if cell_x > 0 else -1
+	var up_index = center_index + grid_width if cell_y < grid_height - 1 else -1
+	var down_index = center_index - grid_width if cell_y > 0 else -1
+
+	var right_value = get_index_distance(flow_field, right_index)
+	if right_value == INF:
+		right_value = center_value
+
+	var left_value = get_index_distance(flow_field, left_index)
+	if left_value == INF:
+		left_value = center_value
+
+	var up_value = get_index_distance(flow_field, up_index)
+	if up_value == INF:
+		up_value = center_value
+
+	var down_value = get_index_distance(flow_field, down_index)
+	if down_value == INF:
+		down_value = center_value
+
+	var gradient = Vector2(right_value - left_value, up_value - down_value)
+	if gradient == Vector2.ZERO:
+		return Vector2.ZERO
+
+	return gradient.normalized()
+
+func world_position_to_index(world_position: Vector2) -> int:
 	if grid_rect == Rect2i():
+		push_error("DataGrid2D: Empty grid_rect, cannot convert world position to index")
 		return -1
 
 	var local_position = world_position / cell_size
@@ -135,8 +191,10 @@ func get_cell_index_from_world_position(world_position: Vector2) -> int:
 	var grid_height = grid_rect.size.y
 
 	if cell_position.x < 0 or cell_position.x >= grid_width:
+		push_error("DataGrid2D: World position ", world_position, " is out of grid bounds")
 		return -1
 	if cell_position.y < 0 or cell_position.y >= grid_height:
+		push_error("DataGrid2D: World position ", world_position, " is out of grid bounds")
 		return -1
 
 	return cell_position.y * grid_width + cell_position.x
