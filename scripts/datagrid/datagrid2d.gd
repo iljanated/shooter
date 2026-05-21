@@ -2,9 +2,12 @@ extends Node2D
 
 class_name DataGrid2D
 
+@export var debug_collision_draw = false
+@export var debug_exits_distance_field_draw = false
+@export var cell_size: int = 32
+
 var tilemap_layers: Array[TileMapLayer] = []
 var map_exits: Array[MapExit] = []
-@export var cell_size: int = 32
 
 var grid: Array[DataGrid2DCell] = []
 var exit_distance_field: PackedFloat32Array = PackedFloat32Array()
@@ -67,16 +70,24 @@ func _draw():
 	var grid_width = grid_rect.size.x
 	var grid_height = grid_rect.size.y
 
-	var font : Font = ThemeDB.fallback_font
-	var font_size = 10
+	if debug_collision_draw:
+		for y in range(grid_height):
+			for x in range(grid_width):
+				var cell_index = y * grid_width + x
+				var cell = grid[cell_index]
+				var color =  Color(0, 1, 0, 0.2) if cell.walkable else Color(1, 0, 0, 0.2)
+				draw_rect(Rect2(top_left + Vector2(x, y) * cell_size, Vector2(cell_size, cell_size)), color)
 
-	for y in range(grid_height):
-		for x in range(grid_width):
-			var cell_index = y * grid_width + x
-			var cell = grid[cell_index]
-			var color =  Color(0, 1, 0, 0.2) if cell.walkable else Color(1, 0, 0, 0.2)
-			draw_rect(Rect2(top_left + Vector2(x, y) * cell_size, Vector2(cell_size, cell_size)), color)
-			draw_string(font, top_left + Vector2(x, y) * cell_size + Vector2(0, (cell_size + font_size) * 0.5), str(exit_distance_field[cell_index]).pad_decimals(1),HORIZONTAL_ALIGNMENT_CENTER, cell_size, font_size)
+	if debug_exits_distance_field_draw:
+		var font : Font = ThemeDB.fallback_font
+		var font_size = 10
+
+		for y in range(grid_height):
+			for x in range(grid_width):
+				var cell_index = y * grid_width + x
+				var gradient = get_gradient("exits", top_left + Vector2(x, y) * cell_size + Vector2(cell_size, cell_size) * 0.5)
+				draw_line(top_left + Vector2(x, y) * cell_size + Vector2(cell_size, cell_size) * 0.5, top_left + Vector2(x, y) * cell_size + Vector2(cell_size, cell_size) * 0.5 + gradient * cell_size * 0.5, Color(1, 0, 1))	
+				draw_string(font, top_left + Vector2(x, y) * cell_size + Vector2(0, (cell_size + font_size) * 0.5), str(exit_distance_field[cell_index]).pad_decimals(1),HORIZONTAL_ALIGNMENT_CENTER, cell_size, font_size)
 
 
 func initialize_tilemap_layers_from_static_layers() -> void:
@@ -152,6 +163,72 @@ func get_gradient(flow_field: String, world_position: Vector2) -> Vector2:
 	var grid_height = grid_rect.size.y
 	var cell_x = center_index % grid_width
 	var cell_y = int(center_index / grid_width)
+
+	var result = Vector2.ZERO
+	var result_value = center_value
+
+	# right
+	if cell_x < grid_width - 1:
+		var index = center_index + 1
+		var value = get_index_distance(flow_field, index)
+		if value < result_value:
+			result_value = value
+			result = Vector2(1, 0)
+
+	# right_down
+	if cell_x < grid_width - 1 and cell_y < grid_height - 1:
+		var index = center_index + 1 + grid_width
+		var value = get_index_distance(flow_field, index)
+		if value < result_value:
+			result_value = value
+			result = Vector2(0.7071, 0.7071)
+
+	# down
+	if cell_y < grid_height - 1:
+		var index = center_index + grid_width
+		var value = get_index_distance(flow_field, index)
+		if value < result_value:
+			result_value = value
+			result = Vector2(0, 1)
+
+	# left_down
+	if cell_x > 0 and cell_y < grid_height - 1:
+		var index = center_index - 1 + grid_width
+		var value = get_index_distance(flow_field, index)
+		if value < result_value:
+			result_value = value
+			result = Vector2(-0.7071, 0.7071)
+
+	# left
+	if cell_x > 0:
+		var index = center_index - 1
+		var value = get_index_distance(flow_field, index)
+		if value < result_value:
+			result_value = value
+			result = Vector2(-1, 0)
+
+	# left_up
+	if cell_x > 0 and cell_y > 0:
+		var index = center_index - 1 - grid_width
+		var value = get_index_distance(flow_field, index)
+		if value < center_value:
+			result = Vector2(-0.7071, -0.7071)
+
+	# up
+	if cell_y > 0:
+		var index = center_index - grid_width
+		var value = get_index_distance(flow_field, index)
+		if value < center_value:
+			result = Vector2(0, -1)
+
+	# right_up
+	if cell_x < grid_width - 1 and cell_y > 0:
+		var index = center_index + 1 - grid_width
+		var value = get_index_distance(flow_field, index)
+		if value < center_value:
+			result = Vector2(0.7071, -0.7071)
+
+	return result
 
 	var right_index = center_index + 1 if cell_x < grid_width - 1 else -1
 	var left_index = center_index - 1 if cell_x > 0 else -1

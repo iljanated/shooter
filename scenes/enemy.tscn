@@ -5,9 +5,15 @@
 [ext_resource type="Script" uid="uid://qotc8qnrnmtj" path="res://scripts/state_machine/state_machine.gd" id="2_md0e3"]
 [ext_resource type="Script" uid="uid://m53jbagvaqs" path="res://scripts/characters/enemy/states/enemy_idle_state.gd" id="3_4ra3w"]
 [ext_resource type="Script" uid="uid://bxc4c6djew7bv" path="res://scripts/characters/enemy/states/enemy_goto_exit_state.gd" id="5_c4w8v"]
+[ext_resource type="PackedScene" path="res://scenes/arrow_component.tscn" id="6_xwavj"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_7p1mj"]
 radius = 17.029387
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_c4w8v"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_xwavj"]
+radius = 64.0
 
 [node name="Enemy" type="CharacterBody2D" unique_id=1222688683]
 z_index = 1
@@ -32,7 +38,24 @@ script = ExtResource("3_4ra3w")
 character_body = NodePath("../..")
 metadata/_custom_type_script = "uid://m53jbagvaqs"
 
-[node name="EnemyGoToExitState" type="Node" parent="StateMachine" unique_id=654520577 node_paths=PackedStringArray("character_body")]
+[node name="EnemyGoToExitState" type="Node" parent="StateMachine" unique_id=654520577 node_paths=PackedStringArray("enemy")]
 script = ExtResource("5_c4w8v")
-character_body = NodePath("../..")
+enemy = NodePath("../..")
 metadata/_custom_type_script = "uid://bxc4c6djew7bv"
+
+[node name="HitBox" type="Area2D" parent="." unique_id=93602711]
+collision_layer = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HitBox" unique_id=1923990523]
+shape = SubResource("CircleShape2D_c4w8v")
+
+[node name="ArrowComponent" parent="." unique_id=1159290415 instance=ExtResource("6_xwavj")]
+
+[node name="FlockBox" type="Area2D" parent="." unique_id=1504417380]
+collision_layer = 0
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="FlockBox" unique_id=390200363]
+shape = SubResource("CircleShape2D_xwavj")
+
+[connection signal="area_entered" from="HitBox" to="." method="_on_hit_box_area_entered"]

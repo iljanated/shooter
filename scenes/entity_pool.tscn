@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://cjfgqn8jno15n"]
+
+[ext_resource type="Script" uid="uid://bloe4p6juqjcp" path="res://scripts/entity_pool.gd" id="1_81c1l"]
+
+[node name="EntityPool" type="Marker2D" unique_id=1328301752]
+script = ExtResource("1_81c1l")

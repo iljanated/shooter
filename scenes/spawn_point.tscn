@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://dvj2vfgok5teu"]
+
+[ext_resource type="Script" uid="uid://dao1qrlvq8p2p" path="res://scripts/map_objects/spawn_point.gd" id="1_ebynj"]
+
+[node name="SpawnPoint" type="Node2D" unique_id=17297681 groups=["spawn_points"]]
+script = ExtResource("1_ebynj")
+metadata/_custom_type_script = "uid://dao1qrlvq8p2p"

@@ -1,0 +1,11 @@
+[gd_scene format=3 uid="uid://covs10cshbayb"]
+
+[ext_resource type="Script" uid="uid://dpjcuamm5ba6u" path="res://scripts/arrow_component.gd" id="1_sqvoj"]
+[ext_resource type="Texture2D" uid="uid://b05yl5ee56dm4" path="res://assets/items/red_arrow.png" id="2_sqvoj"]
+
+[node name="ArrowComponent" type="Node2D" unique_id=1159290415]
+script = ExtResource("1_sqvoj")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=511169181]
+position = Vector2(14, 0)
+texture = ExtResource("2_sqvoj")

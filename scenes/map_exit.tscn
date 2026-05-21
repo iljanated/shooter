@@ -2,6 +2,12 @@
 
 [ext_resource type="Script" uid="uid://bub16lm2inbx0" path="res://scripts/map_objects/map_exit.gd" id="1_5bqki"]
 
-[node name="MapExit" type="Node2D" unique_id=1554953664]
+[sub_resource type="CircleShape2D" id="CircleShape2D_5bqki"]
+radius = 64.0
+
+[node name="MapExit" type="Area2D" unique_id=1459147275 groups=["exits"]]
 script = ExtResource("1_5bqki")
 metadata/_custom_type_script = "uid://bub16lm2inbx0"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=922456003]
+shape = SubResource("CircleShape2D_5bqki")
